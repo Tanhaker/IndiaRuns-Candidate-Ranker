@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+submission.csv
+candidates.jsonl
+candidates.jsonl.gz
+*.pkl
+.DS_Store
+.venv/

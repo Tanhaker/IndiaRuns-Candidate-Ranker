@@ -1,0 +1,89 @@
+# Redrob Hackathon — Submission Metadata
+
+
+# ============================================================================
+# Team identity
+# ============================================================================
+team_name: "Fall Damage"
+
+primary_contact:
+  name: "Tanmay Gajjar"
+  email: "gajjartanmayh@gmail.com"
+  phone: "+91-8734881141"
+
+team_members:
+  - name: "Tanmay Gajjar"
+    email: "gajjartanmayh@gmail.com"
+    role: "Team Lead"
+
+  - name: "Bhakti Kareliya"
+    email: "bhakti2kareliya@gmail.com"
+    role: "Team Lead/Engineer"
+
+# ============================================================================
+# Code and reproducibility
+# ============================================================================
+github_repo: "https://github.com/***YOUR_USERNAME***/redrob-candidate-ranker"
+
+sandbox_link: "https://huggingface.co/spaces/***YOUR_USERNAME***/redrob-ranker"
+# A Streamlit app (app.py) is included — deploy free to HF Spaces or Streamlit
+# Cloud, or provide the docker run recipe from the README instead.
+
+reproduce_command: "python rank.py --candidates ./candidates.jsonl --out ./submission.csv"
+
+# ============================================================================
+# Compute environment
+# ============================================================================
+compute:
+  platform: "***e.g. Local laptop / Colab CPU***"
+  cpu_cores: 8
+  ram_gb: 16
+  python_version: "3.11"
+  os: "Windows 11"
+  uses_gpu_for_inference: false
+  has_network_during_ranking: false
+  pre_computation_required: false
+  pre_computation_time_minutes: 0
+
+# ============================================================================
+# AI tools declaration (transparency only — not penalized)
+# ============================================================================
+ai_tools_used:
+  - "Claude"
+
+ai_usage_summary: |
+  Used Claude for architecture discussion, code review, and drafting. All
+  scoring-weight calibration against the planted trap profiles, the feature
+  design, and the engineering decisions are the team's own. No candidate data
+  was sent to any hosted LLM, and no LLM is called anywhere in the ranking path
+  (a hard requirement of the CPU/no-network compute budget).
+
+# ============================================================================
+# Approach summary
+# ============================================================================
+methodology_summary: |
+  Transparent hybrid ranker, CPU-only and fully offline. An interpretable
+  rule-based scorer (title-tier fit, corroborated skill-trust, product-vs-
+  services career evidence, experience, education, location) is fused with a
+  TF-IDF semantic JD-match lane, then modulated by a behavioral-availability
+  multiplier built from the 23 Redrob signals. The decisive anti-stuffing
+  mechanism is corroboration: a skill counts only in proportion to proficiency
+  × √(duration_months) × log-endorsements, so AI keywords listed with ~0 months
+  used earn almost nothing. Explicit penalties handle the JD's stated dislikes
+  (keyword stuffers, framework enthusiasts, all-services careers, title-chasers,
+  CV/speech-only). A honeypot guard sinks impossible profiles. On the public
+  pool: 0 honeypots and 0 non-technical titles in the top-100, the planted
+  stuffer falls to rank ~87,600/100,000, and all 100 reasonings are unique and
+  fact-grounded. Runtime ~40s for 100K candidates. Architecture is
+  embedding-swappable (drop in precomputed BGE/E5 at one seam) as the production
+  upgrade path.
+
+# ============================================================================
+# Declarations
+# ============================================================================
+declarations:
+  read_submission_spec: true
+  code_is_original_work: true
+  no_collusion: true
+  honeypot_check_done: true
+  reproduction_tested: true
