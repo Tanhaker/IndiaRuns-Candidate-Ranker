@@ -1,24 +1,21 @@
 # Redrob Hackathon — Submission Metadata
-
+# Fill in the *** placeholders *** before you submit via the portal.
 
 # ============================================================================
 # Team identity
 # ============================================================================
-team_name: "Fall Damage"
+team_name: "***YOUR_TEAM_NAME***"
 
 primary_contact:
-  name: "Tanmay Gajjar"
-  email: "gajjartanmayh@gmail.com"
-  phone: "+91-8734881141"
+  name: "Tanmay ***LASTNAME***"
+  email: "***your-email@example.com***"
+  phone: "+91-***XXXXXXXXXX***"
 
 team_members:
-  - name: "Tanmay Gajjar"
-    email: "gajjartanmayh@gmail.com"
-    role: "Team Lead"
-
-  - name: "Bhakti Kareliya"
-    email: "bhakti2kareliya@gmail.com"
-    role: "Team Lead/Engineer"
+  - name: "Tanmay ***LASTNAME***"
+    email: "***your-email@example.com***"
+    role: "Team Lead / ML Engineer"
+  # add co-participants here if any; solo entrants keep just one member
 
 # ============================================================================
 # Code and reproducibility
@@ -39,7 +36,7 @@ compute:
   cpu_cores: 8
   ram_gb: 16
   python_version: "3.11"
-  os: "Windows 11"
+  os: "***e.g. Ubuntu 22.04 / Windows 11 WSL***"
   uses_gpu_for_inference: false
   has_network_during_ranking: false
   pre_computation_required: false

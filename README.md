@@ -83,11 +83,44 @@ star but only gently lift an available one.
 ### Honeypots
 
 Forced to relevance tier-0 in the hidden ground truth; >10% in the top-100 is an
-instant disqualification. We flag the documented impossibility signatures
-(≥3 "expert" skills with 0 months used; a career timeline exceeding the claimed
-years of experience; a single role longer than the whole career) and multiply
-their score by `0.02` — sinking them without hard-deleting a near-miss real
-candidate. In practice corroboration already starves them; the guard is insurance.
+instant disqualification. Two independent detectors run, and **either** firing
+sinks a candidate (score ×`0.02` — sunk, not hard-deleted, so a near-miss real
+candidate is never destroyed):
+
+1. **Profile heuristics** (`features.honeypot_flags`) — the documented
+   signatures: ≥3 "expert" skills with 0 months used; a career timeline
+   exceeding claimed years of experience; a single role longer than the whole
+   career.
+2. **Strict timeline-consistency checks** (`honeypot.timeline_flags`) — hard
+   logical contradictions a "looks-good" read misses: a role whose
+   `duration_months` contradicts its own start/end dates; two full-time roles
+   overlapping for one person; tenures summing past the career window; a
+   Staff/Principal/Director title with too few total years; a degree dated after
+   the entire career ended. Every check is conservative and returns a specific,
+   auditable reason.
+
+On the full 100K pool the two agree on 19 profiles, the timeline checker catches
+1 more the heuristics miss, and it supplies sharper impossibility reasons for the
+shared ones. Corroboration already starves honeypots of score; this is layered
+insurance against the one disqualifying failure mode.
+
+---
+
+## Measuring changes: the eval harness (`eval/`)
+
+There is no live leaderboard and only 3 submissions, so every change is a guess
+until measured. The `eval/` harness reproduces the challenge's exact blend
+(`0.50·NDCG@10 + 0.30·NDCG@50 + 0.15·MAP + 0.05·P@10`) against a validation set
+you label by hand:
+
+```bash
+python -m eval.make_labels      # writes eval/labels.csv (then fill your_tier 0-4)
+python -m eval.evaluate         # prints the composite for the current ranker
+```
+
+Use it as a private leaderboard: change a weight in `config.py`, re-run, keep the
+change only if the number rises. See `eval/README.md` for the tier scale and
+caveats (the public sample is stuffer-heavy, so compare *versions*, not absolutes).
 
 ---
 
@@ -99,9 +132,14 @@ redrob_ranker/
   config.py                 # ALL domain knowledge: weights, vocabularies, company lists, JD query
   features.py               # pure feature extraction from a candidate dict (stdlib only)
   score.py                  # combines features → final score (rules + penalties + guards)
+  honeypot.py               # strict timeline-consistency checks for impossible profiles
   semantic — in pipeline.py # TF-IDF JD-match lane over the whole pool
   reasoning.py              # specific, non-templated, fact-grounded justification per pick
   pipeline.py               # load → semantic → score → rank → write CSV
+eval/                       # local eval harness (NDCG@k/MAP/P@k vs hand labels)
+  make_labels.py            # build a labeling worksheet from the public sample
+  evaluate.py               # score the live ranker (or a CSV) with the official blend
+  metrics.py                # NDCG@k, MAP, P@k, composite — pure stdlib
 app.py                      # Streamlit sandbox (≤100-candidate sample → ranked CSV)
 Dockerfile                  # reproducible build for the sandbox / Stage-3 container
 tests/test_smoke.py         # sanity tests (stuffer sinks, target floats, CSV valid)
@@ -145,6 +183,7 @@ pip install -r requirements.txt
 python rank.py --candidates ./candidates.jsonl --out ./submission.csv
 python validate_submission.py submission.csv      # → "Submission is valid."
 pytest -q                                          # smoke tests
+python -m eval.make_labels && python -m eval.evaluate   # local quality score
 ```
 
 ## Sandbox
@@ -162,4 +201,3 @@ Architecture discussion, code review, and drafting were done with AI assistance
 calibration against the trap profiles, and the engineering are the team's own.
 No candidate data was sent to any hosted LLM, and **no LLM is called anywhere in
 the ranking path** — a hard requirement of the compute budget.
-"# IndiaRuns-Candidate-Ranker" 
