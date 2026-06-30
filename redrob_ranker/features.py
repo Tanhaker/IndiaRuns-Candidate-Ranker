@@ -209,3 +209,54 @@ def honeypot_flags(c: dict, skf: dict) -> list[str]:
             flags.append("single role longer than total career")
             break
     return flags
+
+
+def verification_signal(c: dict, skf: dict) -> tuple[float, dict]:
+    """
+    Independent corroboration from Redrob's OWN platform signals — the strongest
+    kind of evidence, because the candidate cannot self-author it.
+
+    Two sources, used only when present (absent => neutral, never penalised):
+      * skill_assessment_scores — Redrob's independent 0-100 test per skill.
+        High scores on role-relevant skills CORROBORATE the profile; a high
+        claimed proficiency paired with a LOW assessment EXPOSES a stuffer.
+      * github_activity_score — objective evidence of real building (0-100;
+        -1/None = no GitHub linked = neutral).
+
+    Returns (modifier, info) where modifier is a gentle multiplier centred on
+    1.0: corroboration nudges up, contradiction nudges down, missing = 1.0.
+    """
+    s = c.get("redrob_signals", {}) or {}
+    info = {"assess_relevant": None, "github": None, "note": ""}
+
+    # --- skill assessments on role-relevant skills -----------------------
+    assess = s.get("skill_assessment_scores") or {}
+    relevant = []
+    for name, val in assess.items():
+        low = (name or "").lower()
+        if low in C.CORE_SKILLS or low in C.ML_SKILLS:
+            try:
+                relevant.append(float(val))
+            except (TypeError, ValueError):
+                pass
+    assess_mod = 0.0
+    if relevant:
+        avg = sum(relevant) / len(relevant)
+        info["assess_relevant"] = round(avg, 1)
+        # map 0-100 assessment to a [-0.10, +0.10] nudge around 50.
+        assess_mod = max(-0.10, min(0.10, (avg - 50.0) / 500.0))
+        # contradiction check: profile claims strong skills but Redrob's own
+        # test says otherwise -> firmer downward nudge (independent exposure).
+        if avg < 30 and skf.get("core", 0) + skf.get("ml", 0) >= 2.0:
+            assess_mod = -0.12
+            info["note"] = "claims strong skills but low independent assessment"
+
+    # --- github activity --------------------------------------------------
+    gh = s.get("github_activity_score", -1)
+    gh_mod = 0.0
+    if gh is not None and gh >= 0:
+        info["github"] = gh
+        gh_mod = min(0.06, (gh / 100.0) * 0.06)   # up to +0.06 for prolific GH
+
+    modifier = 1.0 + assess_mod + gh_mod
+    return max(0.85, min(1.12, modifier)), info

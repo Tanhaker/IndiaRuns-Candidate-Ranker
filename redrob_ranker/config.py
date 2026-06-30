@@ -131,13 +131,13 @@ TARGET_CITIES = {
 # These sum to 1.0 and were tuned against the trap profiles in the public
 # sample (target AI engineers rank high; stuffers / honeypots collapse).
 WEIGHTS = {
-    "title":      0.26,   # is the ROLE genuinely on-track (anti-stuffer #1)
-    "skill_trust":0.22,   # corroborated AI skills (anti-stuffer #2)
-    "semantic":   0.20,   # TF-IDF JD match — surfaces plain-language fits
-    "career":     0.16,   # built ranking/search/rec at a product company
-    "experience": 0.08,   # 5-9 yrs sweet spot (soft)
-    "education":  0.04,   # mild; JD cares little about pedigree
-    "location":   0.04,   # India / target metro / relocate
+    "title":       0.252,   # is the ROLE genuinely on-track (anti-stuffer #1)
+    "skill_trust": 0.195,   # corroborated AI skills (anti-stuffer #2)
+    "semantic":    0.208,   # hybrid BM25+TF-IDF JD match (RRF)
+    "career":      0.223,   # built ranking/search/rec at a product company
+    "experience":  0.057,   # 5-9 yrs sweet spot (soft)
+    "education":   0.055,   # mild; JD cares little about pedigree
+    "location":    0.01,   # India / target metro / relocate
 }
 
 # ---------------------------------------------------------------------------

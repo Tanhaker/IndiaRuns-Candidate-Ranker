@@ -95,6 +95,13 @@ def score_candidate(c: dict, semantic: float) -> dict:
     hp = F.honeypot_flags(c, skf) + H.timeline_flags(c)
     guard = C.HONEYPOT["penalty"] if hp else 1.0
 
+    # --- independent verification (Redrob assessments + GitHub) -----------
+    # Computed for the REASONING layer (richer, evidence-grounded explanations)
+    # but deliberately NOT folded into the score: on the labeled eval set it
+    # did not improve ranking, and the labels can't fairly judge it, so we do
+    # not gamble the ranking on it. It still enriches the "why" we show.
+    _, verify_info = F.verification_signal(c, skf)
+
     final = fit * penalty * beh_mult * guard * exp_mod
 
     return {
@@ -112,4 +119,5 @@ def score_candidate(c: dict, semantic: float) -> dict:
         "penalty": penalty,
         "penalty_notes": notes,
         "honeypot": hp,
+        "verification": verify_info,
     }
